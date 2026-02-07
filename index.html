@@ -15,7 +15,6 @@
       overflow-y:auto;
       min-height:100vh;
     }
-
     header{text-align:center;padding:60px 20px;}
     h1{font-size:3rem;margin:0}
 
@@ -33,7 +32,6 @@
     }
 
     .love-note{font-size:1.2rem}
-
     button{
       margin-top:20px;
       padding:14px 36px;
@@ -43,7 +41,6 @@
       background:linear-gradient(135deg,#ffcc4d,#ff8c1a);
       font-weight:bold;
     }
-
     .hidden{display:none}
 
     /* floating chocolates */
@@ -104,25 +101,6 @@
       z-index:20;
       box-shadow:0 10px 25px rgba(0,0,0,.35);
     }
-
-    /* tap-to-enable banner */
-    .tap-banner{
-      position:fixed;
-      left:50%;
-      transform:translateX(-50%);
-      bottom:76px;
-      background:rgba(0,0,0,.45);
-      border:1px solid rgba(255,255,255,.18);
-      backdrop-filter: blur(10px);
-      padding:10px 14px;
-      border-radius:14px;
-      font-size:.95rem;
-      z-index:25;
-      display:none;
-      text-align:center;
-      max-width:92vw;
-    }
-    .tap-banner.show{ display:block; }
   </style>
 </head>
 
@@ -134,8 +112,9 @@
   <div class="card">
     <p class="love-note">You are sweeter than every chocolate in the world 💖</p>
 
+    <!-- ✅ FIXED: Real image element exists now -->
     <div class="slideshow">
-      <img id="slide" src="assets/photos/pic1.jpg" alt="Our Memory" />
+      <img id="slide" src="assets/photos/pic1.jpg" alt="Our Memories ❤️">
     </div>
 
     <button onclick="surprise()">Open My Heart 💝</button>
@@ -147,19 +126,17 @@
 
   <div class="rain" id="rain"></div>
 
-  <!-- ✅ Your MP4 song (audio track inside MP4) -->
-  <audio id="song" loop preload="auto" autoplay playsinline>
+  <!-- Song (kept as-is). Autoplay with sound may be blocked by browsers. -->
+  <audio id="song" loop preload="auto">
     <source src="assets/music/song.mp4" type="audio/mp4">
-    <!-- Optional fallback if you later add MP3 -->
     <source src="assets/music/song.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
 
   <button class="music-btn" id="musicBtn" onclick="toggleMusic()">🎵 Play Song</button>
-  <div class="tap-banner" id="tapBanner">🔊 Tap anywhere to enable sound</div>
 
   <script>
-    // ✅ All lowercase filenames to avoid GitHub case issues
+    // ✅ Chocolate assets (ensure filenames match exactly on GitHub)
     const chocolates = [
       "assets/gifs/silk.webp",
       "assets/gifs/silk2.webp",
@@ -176,7 +153,7 @@
       c.className = "choco";
       c.style.left = Math.random()*100 + "vw";
       c.style.animationDuration = (6 + Math.random()*6) + "s";
-      c.onerror = () => console.warn("❌ Missing asset:", src);
+      c.onerror = () => console.warn("❌ Missing chocolate asset:", src);
       document.body.appendChild(c);
       setTimeout(()=> c.remove(), 13000);
     }
@@ -195,12 +172,13 @@
     }
     setInterval(makeRain, 250);
 
-    // ✅ Slideshow (fixed)
+    // ✅ Slideshow (works now because #slide exists)
     const pics = [
       "assets/photos/pic1.jpg",
       "assets/photos/pic2.jpg",
       "assets/photos/pic3.jpg"
     ];
+
     let i = 0;
     const slideEl = document.getElementById("slide");
     slideEl.onerror = () => console.warn("❌ Missing photo:", slideEl.src);
@@ -227,59 +205,26 @@
       firework();
     }
 
-    // ✅ Music: best-effort autoplay (muted) + tap to enable sound
+    // ✅ Music toggle
     const song = document.getElementById("song");
     const musicBtn = document.getElementById("musicBtn");
-    const tapBanner = document.getElementById("tapBanner");
     let playing = false;
-
-    async function tryAutoplayMuted() {
-      try {
-        song.muted = true;            // muted autoplay is usually allowed [1](https://developer.chrome.com/blog/autoplay/)
-        await song.play();
-        playing = true;
-        musicBtn.textContent = "⏸ Pause Song";
-        tapBanner.classList.add("show"); // ask user to enable sound
-      } catch (e) {
-        // if even muted autoplay fails, user must press play button
-        playing = false;
-        musicBtn.textContent = "🎵 Play Song";
-      }
-    }
-
-    // Attempt on load
-    window.addEventListener("load", tryAutoplayMuted);
-
-    // First user interaction: unmute and keep playing
-    function enableSoundOnce() {
-      if (playing && song.muted) {
-        song.muted = false;
-        tapBanner.classList.remove("show");
-      }
-      document.removeEventListener("click", enableSoundOnce);
-      document.removeEventListener("touchstart", enableSoundOnce);
-    }
-    document.addEventListener("click", enableSoundOnce, { once: true });
-    document.addEventListener("touchstart", enableSoundOnce, { once: true });
 
     async function toggleMusic(){
       try{
         if(!playing){
-          song.muted = false;     // user clicked button => sound allowed [1](https://developer.chrome.com/blog/autoplay/)
           await song.play();
           playing = true;
           musicBtn.textContent = "⏸ Pause Song";
-          tapBanner.classList.remove("show");
         } else {
           song.pause();
           playing = false;
           musicBtn.textContent = "🎵 Play Song";
         }
       } catch(e){
-        alert("Tap again to start the music (browser blocked autoplay).");
+        alert("Browser blocked autoplay. Tap Play again to start the music.");
       }
     }
   </script>
 </body>
 </html>
-``
