@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Happy Chocolate Day ❤️</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body{
+      margin:0;
+      font-family:'Segoe UI',sans-serif;
+      background:radial-gradient(circle at top,#6b3f2a,#120400);
+      color:white;
+      overflow-x:hidden;
+      overflow-y:auto;
+      min-height:100vh;
+    }
+
+    header{text-align:center;padding:60px 20px;}
+    h1{font-size:3rem;margin:0}
+
+    .card{
+      background:rgba(255,255,255,.12);
+      backdrop-filter:blur(12px);
+      margin:20px auto;
+      max-width:800px;
+      padding:40px;
+      border-radius:30px;
+      box-shadow:0 20px 60px rgba(0,0,0,.8);
+      text-align:center;
+      z-index:5;
+      position:relative;
+    }
+
+    .love-note{font-size:1.2rem}
+    button{
+      margin-top:20px;
+      padding:14px 36px;
+      border:none;
+      border-radius:40px;
+      cursor:pointer;
+      background:linear-gradient(135deg,#ffcc4d,#ff8c1a);
+      font-weight:bold;
+    }
+    .hidden{display:none}
+
+    /* floating chocolates */
+    .choco{
+      position:fixed;
+      width:90px;
+      animation:float linear infinite;
+      cursor:pointer;
+      z-index:1;
+      pointer-events:auto;
+    }
+    @keyframes float{ from{top:110vh} to{top:-120px} }
+
+    /* rain */
+    .rain span{
+      position:fixed;
+      top:-20px;
+      font-size:22px;
+      animation:fall linear infinite;
+      z-index:0;
+      pointer-events:none;
+    }
+    @keyframes fall{ to{transform:translateY(110vh)} }
+
+    /* fireworks */
+    .firework{
+      position:fixed;
+      width:8px;
+      height:8px;
+      background:#ffcc4d;
+      border-radius:50%;
+      animation:boom 1s ease-out forwards;
+      z-index:10;
+      pointer-events:none;
+    }
+    @keyframes boom{ to{transform:scale(12);opacity:0} }
+
+    /* slideshow */
+    .slideshow img{
+      width:100%;
+      max-width:320px;
+      border-radius:20px;
+      margin-top:20px;
+      animation:fade 6s infinite;
+      border:1px solid rgba(255,255,255,.18);
+    }
+    @keyframes fade{ 0%,100%{opacity:0} 20%,80%{opacity:1} }
+
+    /* music button */
+    .music-btn{
+      position:fixed;
+      bottom:20px;
+      right:20px;
+      background:#ffb703;
+      border:none;
+      border-radius:50px;
+      padding:12px 18px;
+      font-weight:bold;
+      cursor:pointer;
+      z-index:20;
+      box-shadow:0 10px 25px rgba(0,0,0,.35);
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Happy Chocolate Day 🍫</h1>
+  </header>
+
+  <div class="card">
+    <p class="love-note">You are sweeter than every chocolate in the world 💖</p>
+
+    <div class="slideshow">
+      assets/photos/pic1.jpg
+    </div>
+
+    <button onclick="surprise()">Open My Heart 💝</button>
+
+    <p id="msg" class="love-note hidden">
+      Forever yours ❤️
+    </p>
+  </div>
+
+  <div class="rain" id="rain"></div>
+
+  <!-- ✅ Use your own song: MP4 (audio) + MP3 fallback -->
+  <audio id="song" loop preload="auto">
+    assets/music/song.mp4
+    assets/music/song.mp3
+    Your browser does not support the audio element.
+  </audio>
+
+  <button class="music-btn" id="musicBtn" onclick="toggleMusic()">🎵 Play Song</button>
+
+  <script>
+    // ✅ Use lowercase filenames to avoid GitHub case issues
+    const chocolates = [
+      "assets/gifs/silk.webp",
+      "assets/gifs/silk2.webp",
+      "assets/gifs/bubbly.webp",
+      "assets/gifs/5star.gif",
+      "assets/gifs/kitkat.gif",
+      "assets/gifs/bubble.webp"
+    ];
+
+    // Helpful debug: show missing images in console
+    function logBrokenImage(url){
+      console.warn("❌ Missing/blocked asset:", url);
+    }
+
+    function spawnChocolate(){
+      const src = chocolates[Math.floor(Math.random()*chocolates.length)];
+      const c = document.createElement("img");
+      c.src = src;
+      c.className = "choco";
+      c.style.left = Math.random()*100 + "vw";
+      c.style.animationDuration = (6 + Math.random()*6) + "s";
+      c.onerror = () => logBrokenImage(src);
+      document.body.appendChild(c);
+      setTimeout(()=> c.remove(), 13000);
+    }
+    setInterval(spawnChocolate, 1000);
+
+    // ✅ Rain
+    const rain = document.getElementById("rain");
+    const drops = ["❤️","🍫","🌹"];
+    function makeRain(){
+      const s = document.createElement("span");
+      s.innerHTML = drops[Math.floor(Math.random()*drops.length)];
+      s.style.left = Math.random()*100 + "vw";
+      s.style.animationDuration = (3 + Math.random()*4) + "s";
+      rain.appendChild(s);
+      setTimeout(()=> s.remove(), 7000);
+    }
+    setInterval(makeRain, 250);
+
+    // ✅ Slideshow
+    const pics = [
+      "assets/photos/pic1.jpg",
+      "assets/photos/pic2.jpg",
+      "assets/photos/pic3.jpg"
+    ];
+    let i = 0;
+    const slideEl = document.getElementById("slide");
+    slideEl.onerror = () => logBrokenImage(slideEl.src);
+
+    setInterval(()=>{
+      i = (i+1) % pics.length;
+      slideEl.src = pics[i];
+    }, 4000);
+
+    // ✅ Fireworks
+    function firework(){
+      for(let k=0;k<20;k++){
+        const f = document.createElement("div");
+        f.className = "firework";
+        f.style.left = Math.random()*100 + "vw";
+        f.style.top = Math.random()*50 + "vh";
+        document.body.appendChild(f);
+        setTimeout(()=> f.remove(), 1000);
+      }
+    }
+
+    function surprise(){
+      document.getElementById("msg").classList.remove("hidden");
+      firework();
+    }
+
+    // ✅ Music (MP4 supported if it contains audio track)
+    const song = document.getElementById("song");
+    const musicBtn = document.getElementById("musicBtn");
+    let playing = false;
+
+    async function toggleMusic(){
+      try{
+        if(!playing){
+          await song.play();
+          playing = true;
+          musicBtn.textContent = "⏸ Pause Song";
+        } else {
+          song.pause();
+          playing = false;
+          musicBtn.textContent = "🎵 Play Song";
+        }
+      } catch(e){
+        alert("Browser blocked autoplay. Tap Play again to start the music.");
+      }
+    }
+  </script>
+</body>
+</html>
