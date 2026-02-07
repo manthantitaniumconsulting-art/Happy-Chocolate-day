@@ -142,9 +142,9 @@
   <div class="card">
     <p class="love-note">You are sweeter than every chocolate in the world 💖</p>
 
-    <!-- ✅ FIXED: slideshow image element exists -->
+    <!-- ✅ Slideshow image element (pics will show now) -->
     <div class="slideshow">
-      <img id="slide" src="assets/photos/pic1.jpg" alt="Our memories" />
+      <img id="slide" src="assets/photos/pic1.jpg" alt="Memory photo" />
     </div>
 
     <button onclick="surprise()">Open My Heart 💝</button>
@@ -156,10 +156,10 @@
 
   <div class="rain" id="rain"></div>
 
-  <!-- ✅ Your local song (mp4 audio track OR mp3 fallback) -->
+  <!-- ✅ Your local song -->
   <audio id="song" loop preload="auto" playsinline>
-    <source src="assets/music/song.mp4" type="audio/mp4" />
-    <source src="assets/music/song.mp3" type="audio/mpeg" />
+    <source src="assets/music/song.mp4" type="audio/mp4">
+    <source src="assets/music/song.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
 
@@ -168,41 +168,29 @@
 
   <script>
     /* =========================
-       1) Chocolates with fallback (fix bubble/bubbly webp issue)
+       1) Chocolates (bubble & bubbly removed)
        ========================= */
     const chocolates = [
-      { src: "assets/gifs/silk.webp" },
-      { src: "assets/gifs/silk2.webp" },
-      { src: "assets/gifs/5star.gif" },
-      { src: "assets/gifs/kitkat.gif" },
-
-      // ✅ add fallback files for these two
-      { src: "assets/gifs/bubble.webp", fallback: "assets/gifs/bubble.gif" },
-      { src: "assets/gifs/bubbly.webp", fallback: "assets/gifs/bubbly.gif" }
+      "assets/gifs/silk.webp",
+      "assets/gifs/silk2.webp",
+      "assets/gifs/5star.gif",
+      "assets/gifs/kitkat.gif"
     ];
 
     function spawnChocolate(){
-      const item = chocolates[Math.floor(Math.random() * chocolates.length)];
+      const src = chocolates[Math.floor(Math.random() * chocolates.length)];
       const c = document.createElement("img");
 
       c.className = "choco";
-      c.style.left = Math.random()*100 + "vw";
-      c.style.animationDuration = (6 + Math.random()*6) + "s";
+      c.src = src;
+      c.style.left = Math.random() * 100 + "vw";
+      c.style.animationDuration = (6 + Math.random() * 6) + "s";
 
-      c.src = item.src;
-
-      // ✅ if webp fails (decode/404), switch to fallback
-      c.onerror = () => {
-        console.warn("❌ Failed to load:", item.src);
-        if(item.fallback){
-          console.warn("✅ Switching to fallback:", item.fallback);
-          c.onerror = null;
-          c.src = item.fallback;
-        }
-      };
+      // Debug if any asset is missing
+      c.onerror = () => console.warn("❌ Missing chocolate asset:", src);
 
       document.body.appendChild(c);
-      setTimeout(()=> c.remove(), 13000);
+      setTimeout(() => c.remove(), 13000);
     }
     setInterval(spawnChocolate, 1000);
 
@@ -223,7 +211,7 @@
     setInterval(makeRain, 250);
 
     /* =========================
-       3) Slideshow (pics fixed)
+       3) Slideshow (pics rotation)
        ========================= */
     const pics = [
       "assets/photos/pic1.jpg",
@@ -233,6 +221,7 @@
 
     let i = 0;
     const slideEl = document.getElementById("slide");
+
     slideEl.onerror = () => console.warn("❌ Missing photo:", slideEl.src);
 
     setInterval(()=>{
@@ -260,8 +249,7 @@
     }
 
     /* =========================
-       5) Music: autoplay best-effort (muted) then tap to enable sound
-       Autoplay with sound is blocked without user gesture in most browsers. [1](https://stackoverflow.com/questions/48388057/how-to-make-github-pages-url-case-insensitive)
+       5) Music: best-effort autoplay muted + tap to enable sound
        ========================= */
     const song = document.getElementById("song");
     const musicBtn = document.getElementById("musicBtn");
@@ -270,13 +258,12 @@
 
     async function tryAutoplayMuted(){
       try{
-        song.muted = true;           // muted autoplay is usually allowed [1](https://stackoverflow.com/questions/48388057/how-to-make-github-pages-url-case-insensitive)
+        song.muted = true; // muted autoplay more likely allowed
         await song.play();
         playing = true;
         musicBtn.textContent = "⏸ Pause Song";
         tapBanner.classList.add("show");
       } catch(e){
-        // Autoplay failed - user must press play
         playing = false;
         musicBtn.textContent = "🎵 Play Song";
       }
@@ -284,12 +271,10 @@
     window.addEventListener("load", tryAutoplayMuted);
 
     function enableSoundOnce(){
-      if(playing && song.muted){
+      if (playing && song.muted){
         song.muted = false;
         tapBanner.classList.remove("show");
       }
-      document.removeEventListener("click", enableSoundOnce);
-      document.removeEventListener("touchstart", enableSoundOnce);
     }
     document.addEventListener("click", enableSoundOnce, { once:true });
     document.addEventListener("touchstart", enableSoundOnce, { once:true });
@@ -297,7 +282,7 @@
     async function toggleMusic(){
       try{
         if(!playing){
-          song.muted = false; // user gesture allows sound [1](https://stackoverflow.com/questions/48388057/how-to-make-github-pages-url-case-insensitive)
+          song.muted = false;
           await song.play();
           playing = true;
           musicBtn.textContent = "⏸ Pause Song";
